@@ -20,13 +20,21 @@
 
 
 <body>
-<h3>{{name}}:</h3>
+{% for j in range(numResults)%}
+<h3>{{name}}</h3>
   <div>
-    Books:
-    {% for each in data%}
-    <div>{{each}}</div>
+    {% for i in range(3)%}
+    <div>{{l[i]}} {{info[j*3+i]}}</div>
     {% endfor %}
   </div>
+  <div>
+    Books:
+    {% for i in range(numBooks[j][0])%}
+    <div>{{data[counter[j]+i]}}</div>
+    {% endfor %}
+  </div>
+  <div>---------------------------------------------------</div>
+{% endfor %}
 
 
 <body>
