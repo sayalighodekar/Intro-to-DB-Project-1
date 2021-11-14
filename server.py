@@ -68,6 +68,21 @@ def before_request():
     import traceback; traceback.print_exc()
     g.conn = None
 
+# @app.before_request
+# def load_logged_in_user():
+#   """If a user id is stored in the session, load the user object from
+#     the database into ``g.user``."""
+#   user_id = session.get("user_id")
+#   if user_id is None:
+#       g.user = None
+#   else:
+#       g.user = g.conn.execute(
+#           "SELECT * FROM users WHERE uid = (%s)", (user_id,)
+#       ).fetchone()
+
+#   print(g.user)
+
+
 @app.teardown_request
 def teardown_request(exception):
   """
@@ -171,6 +186,33 @@ def another():
 @app.route('/home')
 def home():
   return render_template("home.html")
+
+
+@app.route('/home')
+def home():
+  return render_template("home.html")
+
+
+@app.route('/profile')
+def profile():
+
+  uid = session["user_id"]
+  print("current user",uid)
+  cursor = g.conn.execute("SELECT A.name FROM follows F INNER JOIN authors A ON F.aid = A.aid WHERE uid=(%s)",uid)
+  names = []
+  for result in cursor:
+    names.append(result['name'])  # can also be accessed using result[0]
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT B.title FROM favorites F INNER JOIN books B ON F.isbn = B.isbn WHERE uid=(%s)",uid)
+  books = []
+  for result in cursor:
+    books.append(result['title'])  # can also be accessed using result[0]
+  cursor.close()
+
+  context = dict(authors = names, books= books)
+
+  return render_template("profile.html", **context)
 
 
 # Example of adding new data to the database
@@ -329,12 +371,21 @@ def login():
         if error is None:
             # store the user id in a new session and return to the index
             session.clear()
-            session["user_id"] = user["displayname"]
+            session["user_id"] = user["uid"]
+            g.user = user
             return render_template("home.html")
 
         flash(error)
 
     return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    """Clear the current session, including the stored user id."""
+    print("logout successful!")
+    session.clear()
+    return redirect(url_for("index"))
+
 
 if __name__ == "__main__":
   import click

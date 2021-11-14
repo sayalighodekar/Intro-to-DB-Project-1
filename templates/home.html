@@ -1,44 +1,28 @@
-<html>
-  <style>
-    body{
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
 
+{% extends 'base.html' %}
 
-<body>
-  <h1>Goodreads on Steroids - Home Page</h1>
+{% block header %}
+<p></p><a href="{{ url_for('profile') }}">My Profile</p>
+{% endblock %}
 
-
-<p><a href="another">View User Profile</a></p>
-
-<!--
-<form method="POST" action="/add">
-<p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
-</form>
--->
-
+{% block content %}
 <form method="POST" action="/searchBooks">
-<p>Title of book: <input type="text" name="title"> <input type="submit" value="Search"></p>
-</form>
+  <p>Title of book: <input type="text" name="title"> <input type="submit" value="Search"></p>
+  </form>
+  
+  <form method="POST" action="/searchAuthor">
+  <p>Author name: <input type="text" name="name"> <input type="submit" value="Search"></p>
+  </form>
+  
+  <form method="POST" action="/searchGenre">
+  <p>Genre: <input type="text" name="genre"> Number of Results:
+    <input type="number" min="1" name="num" value="10">
+    Ratings by:
+    <select name="order">
+          <option value="DESC">Descending</option>
+          <option value="ASC">Ascending</option>
+    </select>
+    <input type="submit" value="Search"></p>
+  </form>
+{% endblock %}
 
-<form method="POST" action="/searchAuthor">
-<p>Author name: <input type="text" name="name"> <input type="submit" value="Search"></p>
-</form>
-
-<form method="POST" action="/searchGenre">
-<p>Genre: <input type="text" name="genre"> Number of Results:
-  <input type="number" min="1" name="num" value="10">
-  Ratings by:
-  <select name="order">
-        <option value="DESC">Descending</option>
-        <option value="ASC">Ascending</option>
-  </select>
-  <input type="submit" value="Search"></p>
-</form>
-
-</body>
-
-
-</html>
