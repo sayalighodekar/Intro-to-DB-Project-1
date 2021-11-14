@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>My Profile</h1>
+{% endblock %}
+
+{% block content %}
+<h1> Authors you Follow </h1>
+  {% for author in authors %}
+      <div>{{author}}</div> 
+  {% endfor %}
+
+  <h1> Books you like </h1>
+  {% for book in books %}
+      <div>{{book}}</div> 
+  {% endfor %}
+  </p><a href="{{ url_for('home') }}">Back to home</p>
+
+{% endblock %}
+
