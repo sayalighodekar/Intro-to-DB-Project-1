@@ -20,10 +20,13 @@
 
 
 <body>
-<h3>Book(s)</h3>
+<h3>search results for: {{input}}</h3>
   <div>
+    {% for j in range(numResults)%}
     {% for i in range(11) %}
-    <div>{{l[i]}} {{data[i]}}</div>
+    <div>{{l[i]}} {{data[j*11+i]}}</div>
+    {% endfor %}
+    <div>------------------------------------------------------</div>
     {% endfor %}
   </div>
 
