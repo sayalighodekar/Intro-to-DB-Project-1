@@ -13,16 +13,20 @@
   </style>
 
 <form method="POST" action="/searchBooks">
-<p>Name of book: <input type="text" name="name"> <input type="submit" value="Search"></p>
+<p>Title of book: <input type="text" name="title"> <input type="submit" value="Search"></p>
 </form>
+
+<p><a href="home">back</a></p>
 
 
 <body>
-
+<h3>search results for: {{input}}</h3>
   <div>
-
+    {% for j in range(numResults)%}
     {% for i in range(11) %}
-    <div>{{l[i]}} {{data[i]}}</div>
+    <div>{{l[i]}} {{data[j*11+i]}}</div>
+    {% endfor %}
+    <div>------------------------------------------------------</div>
     {% endfor %}
   </div>
 

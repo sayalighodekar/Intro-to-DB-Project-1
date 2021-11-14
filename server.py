@@ -178,9 +178,14 @@ def index():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
+
 @app.route('/another')
 def another():
   return render_template("another.html")
+
+@app.route('/home')
+def home():
+  return render_template("home.html")
 
 
 @app.route('/home')
@@ -219,14 +224,15 @@ def add():
 
 @app.route('/searchBooks', methods=['POST'])
 def searchBooks():
-  select_title = request.form['name']
+  select_title = request.form["title"]
   cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating, b.language, g.genre_name,"
                           "b.num_pages, b.publication_date, b.rating_count, b.review_count, b.description "
                           "FROM books b, authors a, written_by w, genre g WHERE b.isbn = w.isbn "
                           "AND a.aid = w.aid AND g.gid = w.gid AND b.title = %s", select_title)
   title = []
-  l = ["title: ", "author: ", "ISBN: ", "tating: ", "language: ", "genre: ", "pages: ", "publication date: ",
+  l = ["title: ", "author: ", "ISBN: ", "rating: ", "language: ", "genre: ", "pages: ", "publication date: ",
        "ratings count: ", "reviews count:", "summary: "]
+  numResults = 0
   for result in cursor:
     title.append(result[0])
     title.append(result[1])
@@ -239,13 +245,112 @@ def searchBooks():
     title.append(result[8])
     title.append(result[9])
     title.append(result[10])
+    numResults = numResults + 1
   cursor.close()
-  context = dict(data = title, l = l)
+  context = dict(data = title, l = l, input = select_title, numResults = numResults)
   return render_template("searchBooks.html", **context)
-  
+
+@app.route('/searchAuthor', methods=['POST'])
+def searchAuthor():
+  select_name = request.form["name"]
+  cursor = g.conn.execute("SELECT b.title, b.isbn FROM books b, authors a, written_by w "
+                          "WHERE b.isbn = w.isbn AND a.aid = w.aid AND a.name = %s "
+                          "ORDER BY a.aid", select_name)
+  cursor2 = g.conn.execute("SELECT a.aid, a.avg_rating, a.website FROM authors a WHERE a.name = %s"
+                           , select_name)
+  cursor3 = g.conn.execute("SELECT COUNT(*) FROM books b, authors a, written_by w WHERE b.isbn "
+                           "= w.isbn AND a.aid = w.aid AND a.name = %s GROUP BY a.aid "
+                           "ORDER BY a.aid ASC", select_name)
+
+  books = []
+  authorInfo = []
+  numBooks = [] #number of books size aid had
+  counter = [] #the counter for return book results to the correct aid
+  l = ["author ID: ", "author rating: ", "website: "]
+  numResults = 0
+  for result in cursor:
+    books.append("'" + result[0] + "', ISBN: " + str(result[1]))
+  cursor.close()
+
+  for result in cursor2:
+      authorInfo.append(result[0])
+      authorInfo.append(result[1])
+      authorInfo.append(result[2])
+      numResults = numResults + 1
+  cursor2.close()
+
+  for result in cursor3:
+      numBooks.append(result)
+  cursor3.close()
+
+  counter.append(0)
+
+  for i in range(1, len(numBooks)):
+      counter.append(counter[i-1] + numBooks[i-1][0])
 
 
-@app.route('/login')
+  if len(authorInfo) == 0:
+      select_name = "No Results"
+
+  context = dict(data = books, name = select_name, info = authorInfo, l=l, numBooks = numBooks,
+                 counter = counter, numResults = numResults)
+  return render_template("searchAuthor.html", **context)
+
+@app.route('/searchGenre', methods=['POST'])
+def searchGenre():
+  select_genre = request.form["genre"]
+  num_results = request.form["num"]
+  sort_order = request.form["order"]
+  if sort_order == "DESC":
+    cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating FROM books b, authors a, "
+                          "written_by w, genre g WHERE b.isbn = w.isbn AND a.aid = w.aid "
+                          "AND g.gid = w.gid AND g.genre_name = %s ORDER BY b.avg_rating DESC "
+                          "LIMIT %s", select_genre, num_results)
+  elif sort_order == "ASC":
+      cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating FROM books b, authors a, "
+                                "written_by w, genre g WHERE b.isbn = w.isbn AND a.aid = w.aid "
+                                "AND g.gid = w.gid AND g.genre_name = %s ORDER BY b.avg_rating ASC "
+                                "LIMIT %s", select_genre, num_results)
+  title = []
+  for result in cursor:
+    title.append("'" + result[0] + "', by " + result[1] + ", ISBN: " + str(result[2]) +
+                                                         ", rating: " + str(result[3]))
+  cursor.close()
+  context = dict(data = title)
+  return render_template("searchGenre.html", **context)
+
+
+@app.route('/register', methods=('GET', 'POST'))
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        error = None
+
+        if not username:
+            error = 'Username is required.'
+        elif not password:
+            error = 'Password is required.'
+
+        print(username, password)
+        if error is None:
+            try:
+                g.conn.execute(
+                    "INSERT INTO users (displayname, password) VALUES (%s, %s)",
+                    (username, password),
+                )
+            except IntegrityError:
+                error = f"User {username} is already registered."
+            # else:
+            #     return redirect(url_for("register"))
+
+            print(error)
+
+    return render_template('register.html')
+
+
+@app.route("/login", methods=("GET", "POST"))
 def login():
     """Log in a registered user by adding the user id to the session."""
     if request.method == "POST":
@@ -273,13 +378,14 @@ def login():
         flash(error)
 
     return render_template("login.html")
-    
+
 @app.route("/logout")
 def logout():
     """Clear the current session, including the stored user id."""
     print("logout successful!")
     session.clear()
     return redirect(url_for("index"))
+
 
 if __name__ == "__main__":
   import click
