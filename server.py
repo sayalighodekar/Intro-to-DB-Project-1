@@ -206,6 +206,20 @@ def searchBooks():
   context = dict(data = title, l = l)
   return render_template("searchBooks.html", **context)
 
+@app.route('/searchAuthor', methods=['POST'])
+def searchAuthor():
+  select_name = request.form['name']
+  cursor = g.conn.execute("SELECT b.title, b.isbn FROM books b, authors a, written_by w "
+                          "WHERE b.isbn = w.isbn AND a.aid = w.aid AND a.name = %s", select_name)
+  title = []
+  #l = ["title: ,", "ISBN: "]
+
+  for result in cursor:
+    title.append("'" + result[0] + "', ISBN: " + str(result[1]))
+  cursor.close()
+  context = dict(data = title)
+  return render_template("searchAuthor.html", **context)
+
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():

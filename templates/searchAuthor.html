@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+  <style>
+    body{
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+<form method="POST" action="/searchAuthor">
+<p>Author name: <input type="text" name="name"> <input type="submit" value="Search"></p>
+</form>
+
+<p><a href="home">back</a></p>
+
+
+<body>
+
+  <div>
+    {% for each in data%}
+    <div>{{each}}</div>
+    {% endfor %}
+  </div>
+
+
+<body>
+
+</body>
+</html>
