@@ -163,9 +163,14 @@ def index():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
+
 @app.route('/another')
 def another():
   return render_template("another.html")
+
+@app.route('/home')
+def home():
+  return render_template("home.html")
 
 
 # Example of adding new data to the database
@@ -200,6 +205,7 @@ def searchBooks():
   cursor.close()
   context = dict(data = title, l = l)
   return render_template("searchBooks.html", **context)
+
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
@@ -253,7 +259,7 @@ def login():
             # store the user id in a new session and return to the index
             session.clear()
             session["user_id"] = user["displayname"]
-            return redirect(url_for(" "))
+            return render_template("home.html")
 
         flash(error)
 
