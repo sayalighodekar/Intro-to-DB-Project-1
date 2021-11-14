@@ -20,11 +20,17 @@
 -->
 
 <form method="POST" action="/searchBooks">
-<p>Title of book: <input type="text" name="name"> <input type="submit" value="Search"></p>
+<p>Title of book: <input type="text" name="title"> <input type="submit" value="Search"></p>
 </form>
 
 <form method="POST" action="/searchAuthor">
 <p>Author name: <input type="text" name="name"> <input type="submit" value="Search"></p>
+</form>
+
+<form method="POST" action="/searchGenre">
+<p>Genre: <input type="text" name="genre"> Number of Results:
+  <input type="number" min="1" name="num" value="10">
+  <input type="submit" value="Search"></p>
 </form>
 
 </body>

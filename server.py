@@ -182,13 +182,13 @@ def add():
 
 @app.route('/searchBooks', methods=['POST'])
 def searchBooks():
-  select_title = request.form['name']
+  select_title = request.form["title"]
   cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating, b.language, g.genre_name,"
                           "b.num_pages, b.publication_date, b.rating_count, b.review_count, b.description "
                           "FROM books b, authors a, written_by w, genre g WHERE b.isbn = w.isbn "
                           "AND a.aid = w.aid AND g.gid = w.gid AND b.title = %s", select_title)
   title = []
-  l = ["title: ", "author: ", "ISBN: ", "tating: ", "language: ", "genre: ", "pages: ", "publication date: ",
+  l = ["title: ", "author: ", "ISBN: ", "rating: ", "language: ", "genre: ", "pages: ", "publication date: ",
        "ratings count: ", "reviews count:", "summary: "]
   for result in cursor:
     title.append(result[0])
@@ -208,17 +208,31 @@ def searchBooks():
 
 @app.route('/searchAuthor', methods=['POST'])
 def searchAuthor():
-  select_name = request.form['name']
+  select_name = request.form["name"]
   cursor = g.conn.execute("SELECT b.title, b.isbn FROM books b, authors a, written_by w "
                           "WHERE b.isbn = w.isbn AND a.aid = w.aid AND a.name = %s", select_name)
   title = []
-  #l = ["title: ,", "ISBN: "]
-
   for result in cursor:
     title.append("'" + result[0] + "', ISBN: " + str(result[1]))
   cursor.close()
   context = dict(data = title)
   return render_template("searchAuthor.html", **context)
+
+@app.route('/searchGenre', methods=['POST'])
+def searchGenre():
+  select_genre = request.form["genre"]
+  num_results = request.form["num"]
+  cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating FROM books b, authors a, "
+                          "written_by w, genre g WHERE b.isbn = w.isbn AND a.aid = w.aid "
+                          "AND g.gid = w.gid AND g.genre_name = %s ORDER BY b.avg_rating DESC "
+                          "LIMIT %s", select_genre, num_results)
+  title = []
+  for result in cursor:
+    title.append("'" + result[0] + "', by " + result[1] + ", ISBN: " + str(result[2]) +
+                                                         ", rating: " + str(result[3]))
+  cursor.close()
+  context = dict(data = title)
+  return render_template("searchGenre.html", **context)
 
 
 @app.route('/register', methods=('GET', 'POST'))
