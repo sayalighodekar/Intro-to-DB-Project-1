@@ -12,11 +12,15 @@ import os
   # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, request, render_template, g, redirect, Response, flash
+from sqlalchemy.exc import IntegrityError
+from flask import session
+from flask import redirect, url_for 
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
+app.config.update(SECRET_KEY=os.urandom(24))
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -45,7 +49,7 @@ engine.execute("""CREATE TABLE IF NOT EXISTS test (
   id serial,
   name text
 );""")
-# engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+#engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
 
 @app.before_request
@@ -109,11 +113,11 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
+#   cursor = g.conn.execute("SELECT name FROM test")
+#   names = []
+#   for result in cursor:
+#     names.append(result['name'])  # can also be accessed using result[0]
+#   cursor.close()
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -141,14 +145,15 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names)
+  #context = dict(data = names)
 
 
   #
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  #return render_template("index.html", **context)
+  return render_template("base.html")
 
 #
 # This is an example of a different path.  You can see it at:
