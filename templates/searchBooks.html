@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+  <style>
+    body{
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+<form method="POST" action="/searchBooks">
+<p>Name of book: <input type="text" name="name"> <input type="submit" value="Search"></p>
+</form>
+
+
+<body>
+
+  <div>
+
+    {% for i in range(11) %}
+    <div>{{l[i]}} {{data[i]}}</div>
+    {% endfor %}
+  </div>
+
+
+<body>
+
+</body>
+</html>

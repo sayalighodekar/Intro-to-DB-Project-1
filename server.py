@@ -45,7 +45,7 @@ engine.execute("""CREATE TABLE IF NOT EXISTS test (
   id serial,
   name text
 );""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+# engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
 
 @app.before_request
@@ -169,6 +169,33 @@ def add():
   name = request.form['name']
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
+
+@app.route('/searchBooks', methods=['POST'])
+def searchBooks():
+  select_title = request.form['name']
+  cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating, b.language, g.genre_name,"
+                          "b.num_pages, b.publication_date, b.rating_count, b.review_count, b.description "
+                          "FROM books b, authors a, written_by w, genre g WHERE b.isbn = w.isbn "
+                          "AND a.aid = w.aid AND g.gid = w.gid AND b.title = %s", select_title)
+  title = []
+  l = ["title: ", "author: ", "ISBN: ", "tating: ", "language: ", "genre: ", "pages: ", "publication date: ",
+       "ratings count: ", "reviews count:", "summary: "]
+  for result in cursor:
+    title.append(result[0])
+    title.append(result[1])
+    title.append(result[2])
+    title.append(result[3])
+    title.append(result[4])
+    title.append(result[5])
+    title.append(result[6])
+    title.append(result[7])
+    title.append(result[8])
+    title.append(result[9])
+    title.append(result[10])
+  cursor.close()
+  context = dict(data = title, l = l)
+  return render_template("searchBooks.html", **context)
+  
 
 
 @app.route('/login')
