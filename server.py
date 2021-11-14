@@ -215,17 +215,24 @@ def searchAuthor():
   for result in cursor:
     title.append("'" + result[0] + "', ISBN: " + str(result[1]))
   cursor.close()
-  context = dict(data = title)
+  context = dict(data = title, name = select_name)
   return render_template("searchAuthor.html", **context)
 
 @app.route('/searchGenre', methods=['POST'])
 def searchGenre():
   select_genre = request.form["genre"]
   num_results = request.form["num"]
-  cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating FROM books b, authors a, "
+  sort_order = request.form["order"]
+  if sort_order == "DESC":
+    cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating FROM books b, authors a, "
                           "written_by w, genre g WHERE b.isbn = w.isbn AND a.aid = w.aid "
                           "AND g.gid = w.gid AND g.genre_name = %s ORDER BY b.avg_rating DESC "
                           "LIMIT %s", select_genre, num_results)
+  elif sort_order == "ASC":
+      cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating FROM books b, authors a, "
+                                "written_by w, genre g WHERE b.isbn = w.isbn AND a.aid = w.aid "
+                                "AND g.gid = w.gid AND g.genre_name = %s ORDER BY b.avg_rating ASC "
+                                "LIMIT %s", select_genre, num_results)
   title = []
   for result in cursor:
     title.append("'" + result[0] + "', by " + result[1] + ", ISBN: " + str(result[2]) +

@@ -30,6 +30,11 @@
 <form method="POST" action="/searchGenre">
 <p>Genre: <input type="text" name="genre"> Number of Results:
   <input type="number" min="1" name="num" value="10">
+  Ratings by:
+  <select name="order">
+        <option value="DESC">Descending</option>
+        <option value="ASC">Ascending</option>
+  </select>
   <input type="submit" value="Search"></p>
 </form>
 
