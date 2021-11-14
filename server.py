@@ -368,7 +368,8 @@ def login():
             session.clear()
             session["user_id"] = user["uid"]
             g.user = user
-            return render_template("home.html")
+            #return render_template("home.html")
+            return redirect(url_for('home'))
 
         flash(error)
 
