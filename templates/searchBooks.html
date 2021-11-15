@@ -23,6 +23,9 @@
       <form method="POST" action="/addFavorite">
         <p><button type="submit" name="ISBN" value={{data[j*11+2]}}>Add to Favorite</button></p>
       </form>
+      <form method="POST" action="/ratings">
+        <p><button type="submit" name="ISBN" value={{data[j*11+2]}}>Write a Review</button></p>
+      </form>
       <div>------------------------------------------------------</div>
       {% endfor %}
     </div>
