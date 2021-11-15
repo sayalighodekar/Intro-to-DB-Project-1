@@ -342,9 +342,11 @@ def searchGenre():
                                 "AND g.gid = w.gid AND g.genre_name = %s ORDER BY b.avg_rating ASC "
                                 "LIMIT %s", select_genre, num_results)
   title = []
+  numResults = []
   for result in cursor:
     title.append("'" + result[0] + "', by " + result[1] + ", ISBN: " + str(result[2]) +
                                                          ", rating: " + str(result[3]))
+    numResults = numResults + 1
   cursor.close()
 
   context = dict(data = title)
