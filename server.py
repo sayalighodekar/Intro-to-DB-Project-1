@@ -190,8 +190,9 @@ def another():
 def readReviews():
   ISBN = request.form['ISBN']
   cursor = g.conn.execute("SELECT title FROM books WHERE isbn = %s", ISBN)
-  cursor2 = g.conn.execute("SELECT r.review_text, r.rating FROM has_reviews h, reviews r "
-                           "WHERE h.rid = r.rid AND h.isbn = %s", ISBN)
+  cursor2 = g.conn.execute("SELECT u.displayname, r.review_text, r.rating FROM has_reviews h, "
+                           "reviews r, posts_reviews p, Users u WHERE h.rid = r.rid AND h.rid = "
+                           "p.rid AND p.uid = u.uid AND h.isbn = %s ORDER BY r.rating DESC", ISBN)
   title = []
   reviews = []
   for result in cursor:
@@ -199,8 +200,7 @@ def readReviews():
   cursor.close()
 
   for result in cursor2:
-      reviews.append(result[0])
-      reviews.append(result[1])
+      reviews.append([result[0], result[1], result[2]])
   cursor2.close()
 
   context = dict(isbn=ISBN, title=title, reviews = reviews)
