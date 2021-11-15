@@ -248,7 +248,13 @@ def profile():
     books.append(result['title'])  # can also be accessed using result[0]
   cursor.close()
 
-  context = dict(authors = names, books= books)
+  cursor = g.conn.execute("SELECT B.title, R.review_text, R.rating FROM books B, reviews R, has_reviews HR, posts_reviews PR WHERE B.isbn = HR.isbn AND PR.rid = R.rid AND PR.rid = HR.rid AND PR.uid = %s ",uid)
+  reviews = []
+  for result in cursor:
+    reviews.append([result['title'], result['review_text'], result['rating']])  # can also be accessed using result[0]
+  cursor.close()
+
+  context = dict(authors = names, books= books, reviews = reviews)
 
   return render_template("profile.html", **context)
 
@@ -302,7 +308,7 @@ def addRating():
   g.conn.execute("INSERT INTO has_reviews(isbn, rid) VALUES (%s,%s)",isbn,rid)
   g.conn.execute("INSERT INTO posts_reviews(uid, rid) VALUES (%s,%s)",uid,rid)
 
-  return redirect('/home')
+  return redirect('/profile')
 
 @app.route('/ratings', methods=['POST'])
 
