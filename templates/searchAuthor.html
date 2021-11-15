@@ -18,6 +18,9 @@
       {% for i in range(3)%}
       <div>{{l[i]}} {{info[j*3+i]}}</div>
       {% endfor %}
+      <form method="POST" action="/follow">
+        <p><button type="submit" name="aid" value={{info[j*3]}}>Follow</button></p>
+      </form>
     </div>
     <div>
       Books:

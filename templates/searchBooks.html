@@ -20,6 +20,15 @@
       {% for i in range(11) %}
       <div>{{l[i]}} {{data[j*11+i]}}</div>
       {% endfor %}
+
+      <br>
+      <div>{{onlineStore[j*2 + 0]}}</div>
+      <div><a href={{onlineStore[1]}}>{{onlineStore[j*2 + 1]}}</a></div>
+      <br>
+      <div>{{offlineStore[j*2 + 0]}}</div>
+      <div>{{offlineStore[j*2 + 1]}}</div>
+      <div>{{offlineStore[j*2 + 2]}}</div>
+
       <form method="POST" action="/addFavorite">
         <p><button type="submit" name="ISBN" value={{data[j*11+2]}}>Add to Favorite</button></p>
       </form>

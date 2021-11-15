@@ -15,7 +15,7 @@ from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, flash
 from sqlalchemy.exc import IntegrityError
 from flask import session
-from flask import redirect, url_for 
+from flask import redirect, url_for
 
 
 
@@ -146,14 +146,14 @@ def index():
   # You can see an example template in templates/index.html
   #
   # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
+  # for example, "data" key in the context variable defined below will be
   # accessible as a variable in index.html:
   #
   #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
   #     <div>{{data}}</div>
-  #     
+  #
   #     # creates a <div> tag for each element in data
-  #     # will print: 
+  #     # will print:
   #     #
   #     #   <div>grace hopper</div>
   #     #   <div>alan turing</div>
@@ -244,7 +244,31 @@ def add():
 @app.route('/addFavorite', methods=['POST'])
 def addFavorite():
   ISBN = request.form["ISBN"]
-  g.conn.execute('INSERT INTO favorites(uid, ISBN) VALUES (%s, %s)', session["user_id"], ISBN)
+  cursor = g.conn.execute('SELECT * FROM favorites WHERE uid = %s AND isbn= %s', session["user_id"], ISBN)
+  results = []
+  for result in cursor:
+      results.append(result)
+  cursor.close()
+  if len(results) == 0:
+    g.conn.execute('INSERT INTO favorites(uid, ISBN) VALUES (%s, %s)', session["user_id"], ISBN)
+  else:
+    flash("Oops, you already added this book to favorites!")
+    return redirect('/home')
+  return redirect('/profile')
+
+@app.route('/follow', methods=['POST'])
+def follow():
+  aid = request.form["aid"]
+  cursor = g.conn.execute('SELECT * FROM follows WHERE uid = %s AND aid= %s', session["user_id"], aid)
+  results = []
+  for result in cursor:
+      results.append(result)
+  cursor.close()
+  if len(results) == 0:
+    g.conn.execute('INSERT INTO follows(uid, aid) VALUES (%s, %s)', session["user_id"], aid)
+  else:
+    flash("Oops, you are already following this author!")
+    return redirect('/home')
   return redirect('/profile')
 
 @app.route('/addRating', methods=['POST'])
@@ -276,9 +300,17 @@ def searchBooks():
                           "b.num_pages, b.publication_date, b.rating_count, b.review_count, b.description "
                           "FROM books b, authors a, written_by w, genre g WHERE b.isbn = w.isbn "
                           "AND a.aid = w.aid AND g.gid = w.gid AND b.title = %s", select_title)
+  cursor2 = g.conn.execute("SELECT s.name, s1.shopping_link FROM store s, online_stores s1, sold_by sb, "
+                           "books b WHERE sb.sid = s.sid AND s.sid = s1.sid AND sb.isbn = b.isbn "
+                           "AND b.title = %s", select_title)
+  cursor3 = g.conn.execute("SELECT s.name, s1.location, s1.store_time FROM store s, offline_stores s1, "
+                           "sold_by sb, books b WHERE sb.sid = s.sid AND s.sid = s1.sid AND "
+                           "sb.isbn = b.isbn AND b.title = %s", select_title)
   title = []
+  onlineStore = []
+  offlineStore = []
   l = ["title: ", "author: ", "ISBN: ", "rating: ", "language: ", "genre: ", "pages: ", "publication date: ",
-       "ratings count: ", "reviews count:", "summary: "]
+       "ratings count: ", "reviews count:", "summary: ", "online store: ", "physical store: "]
   numResults = 0
   for result in cursor:
     title.append(result[0])
@@ -294,12 +326,24 @@ def searchBooks():
     title.append(result[10])
     numResults = numResults + 1
   cursor.close()
+
+  for result in cursor2:
+      onlineStore.append(result[0])
+      onlineStore.append(result[1])
+  cursor2.close()
+
+  for result in cursor3:
+      offlineStore.append(result[0])
+      offlineStore.append(result[1])
+      offlineStore.append(result[2])
+  cursor3.close()
+
   if numResults == 0:
     flash("Aww snap! no such book")
     return redirect(url_for('home'))
-    
 
-  context = dict(data = title, l = l, input = select_title, numResults = numResults)
+  context = dict(data = title, l = l, input = select_title, numResults = numResults,
+                 onlineStore = onlineStore, offlineStore = offlineStore)
   return render_template("searchBooks.html", **context)
 
 @app.route('/searchAuthor', methods=['POST'])
@@ -313,7 +357,6 @@ def searchAuthor():
   cursor3 = g.conn.execute("SELECT COUNT(*) FROM books b, authors a, written_by w WHERE b.isbn "
                            "= w.isbn AND a.aid = w.aid AND a.name = %s GROUP BY a.aid "
                            "ORDER BY a.aid ASC", select_name)
-
   books = []
   authorInfo = []
   numBooks = [] #number of books size aid had
