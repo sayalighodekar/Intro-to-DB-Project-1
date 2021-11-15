@@ -191,28 +191,29 @@ def another():
 def home():
   return render_template("home.html")
 
-@app.route('/stores')
-def stores():
 
-  cursor = g.conn.execute("SELECT A.name FROM follows F INNER JOIN authors A ON F.aid = A.aid WHERE uid=(%s)",uid)
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
 
-  cursor = g.conn.execute("SELECT B.title FROM favorites F INNER JOIN books B ON F.isbn = B.isbn WHERE uid=(%s)",uid)
-  books = []
-  for result in cursor:
-    books.append(result['title'])  # can also be accessed using result[0]
-  cursor.close()
+# @app.route('/stores')
+# def stores():
 
-  context = dict(authors = names, books= books)
+#   cursor = g.conn.execute("SELECT A.name FROM follows F INNER JOIN authors A ON F.aid = A.aid WHERE uid=(%s)",uid)
+#   names = []
+#   for result in cursor:
+#     names.append(result['name'])  # can also be accessed using result[0]
+#   cursor.close()
 
-  return render_template("stores.html")
+#   cursor = g.conn.execute("SELECT B.title FROM favorites F INNER JOIN books B ON F.isbn = B.isbn WHERE uid=(%s)",uid)
+#   books = []
+#   for result in cursor:
+#     books.append(result['title'])  # can also be accessed using result[0]
+#   cursor.close()
+
+#   context = dict(authors = names, books= books)
+
+#   return render_template("stores.html")
 
 @app.route('/ratings')
 def ratings():
-
   return render_template("ratings.html")
 
 @app.route('/profile')

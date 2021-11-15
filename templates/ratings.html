@@ -6,7 +6,12 @@
 {% endblock %}
 
 {% block content %}
-  
+
+
+<form method="post">
+    <textarea rows = "5" cols = "60" name = "description"></textarea><br>
+    <input type="submit" value="Submit Review"></p>
+</form>  
   </p><a href="{{ url_for('home') }}">Back to home</p>
 
 {% endblock %}
