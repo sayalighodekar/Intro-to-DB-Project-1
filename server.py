@@ -259,6 +259,21 @@ def addFavorite():
     return redirect('/home')
   return redirect('/profile')
 
+@app.route('/follow', methods=['POST'])
+def follow():
+  aid = request.form["aid"]
+  cursor = g.conn.execute('SELECT * FROM follows WHERE uid = %s AND aid= %s', session["user_id"], aid)
+  results = []
+  for result in cursor:
+      results.append(result)
+  cursor.close()
+  if len(results) == 0:
+    g.conn.execute('INSERT INTO follows(uid, aid) VALUES (%s, %s)', session["user_id"], aid)
+  else:
+    flash("Oops, you are already following this author!")
+    return redirect('/home')
+  return redirect('/profile')
+
 
 @app.route('/searchBooks', methods=['POST'])
 def searchBooks():
