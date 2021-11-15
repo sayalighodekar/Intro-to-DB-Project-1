@@ -1,3 +1,41 @@
+{% extends 'base.html' %}
+{% block header %}
+{{ super() }}
+<h1>AUTHORS</h1>
+{% endblock %}
+{% block content %}
+<form method="POST" action="/searchAuthor">
+  <p>Author name: <input type="text" name="name"> <input type="submit" value="Search"></p>
+  </form>
+  
+  <p><a href="home">back</a></p>
+  
+  
+  <body>
+  {% for j in range(numResults)%}
+  <h3>{{name}}</h3>
+    <div>
+      {% for i in range(3)%}
+      <div>{{l[i]}} {{info[j*3+i]}}</div>
+      {% endfor %}
+    </div>
+    <div>
+      Books:
+      {% if numBooks|length != 0 %}
+      {% for i in range(numBooks[j][0])%}
+      <div>{{data[counter[j]+i]}}</div>
+      {% endfor %}
+      {% endif %}
+  
+    </div>
+    <div>---------------------------------------------------</div>
+  {% endfor %}
+  
+  
+  </body>
+{% endblock %}
+
+<!-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,35 +50,7 @@
     }
   </style>
 
-<form method="POST" action="/searchAuthor">
-<p>Author name: <input type="text" name="name"> <input type="submit" value="Search"></p>
-</form>
 
-<p><a href="home">back</a></p>
-
-
-<body>
-{% for j in range(numResults)%}
-<h3>{{name}}</h3>
-  <div>
-    {% for i in range(3)%}
-    <div>{{l[i]}} {{info[j*3+i]}}</div>
-    {% endfor %}
-  </div>
-  <div>
-    Books:
-    {% if numBooks|length != 0 %}
-    {% for i in range(numBooks[j][0])%}
-    <div>{{data[counter[j]+i]}}</div>
-    {% endfor %}
-    {% endif %}
-
-  </div>
-  <div>---------------------------------------------------</div>
-{% endfor %}
-
-
-<body>
 
 </body>
-</html>
+</html> -->
