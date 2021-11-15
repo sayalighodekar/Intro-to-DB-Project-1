@@ -246,10 +246,9 @@ def add():
 
 @app.route('/addFavorite', methods=['POST'])
 def addFavorite():
-  name = request.form['title']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  print(name)
-  return redirect('/')
+  ISBN = request.form["ISBN"]
+  g.conn.execute('INSERT INTO favorites(uid, ISBN) VALUES (%s, %s)', session["user_id"], ISBN)
+  return redirect('/profile')
 
 
 @app.route('/searchBooks', methods=['POST'])
