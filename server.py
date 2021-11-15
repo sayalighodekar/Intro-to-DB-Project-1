@@ -192,7 +192,6 @@ def home():
   return render_template("home.html")
 
 
-
 # @app.route('/stores')
 # def stores():
 
