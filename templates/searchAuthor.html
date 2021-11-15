@@ -29,9 +29,12 @@
   </div>
   <div>
     Books:
+    {% if numBooks|length != 0 %}
     {% for i in range(numBooks[j][0])%}
     <div>{{data[counter[j]+i]}}</div>
     {% endfor %}
+    {% endif %}
+
   </div>
   <div>---------------------------------------------------</div>
 {% endfor %}
