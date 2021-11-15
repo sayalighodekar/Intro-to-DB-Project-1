@@ -2,11 +2,17 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<p><a href="{{ url_for('profile') }}">My Profile</a></p>
+{{ super() }}
+<ul>
+<li><a href="{{ url_for('profile') }}">My Profile</a></li>
+<!-- <li><a href="{{ url_for('stores') }}">Check Book Availability</a></li>
+<li></li><a href="{{ url_for('ratings') }}">Rate Books</a></li> -->
+</ul>
 {% endblock %}
 
 {% block content %}
 <form method="POST" action="/searchBooks">
+  <h1>SEARCH BOOKS HERE!</h1>
   <p>Title of book: <input type="text" name="title"> <input type="submit" value="Search"></p>
   </form>
   
