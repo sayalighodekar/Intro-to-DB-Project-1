@@ -211,9 +211,6 @@ def home():
 
 #   return render_template("stores.html")
 
-@app.route('/ratings')
-def ratings():
-  return render_template("ratings.html")
 
 @app.route('/profile')
 def profile():
@@ -250,6 +247,27 @@ def addFavorite():
   g.conn.execute('INSERT INTO favorites(uid, ISBN) VALUES (%s, %s)', session["user_id"], ISBN)
   return redirect('/profile')
 
+@app.route('/addRating', methods=['POST'])
+def addRating():
+  isbn = request.form["isbn"]
+  review_text = request.form["review"]
+  uid = session["user_id"]
+  rating = request.form["rating"]
+
+
+  rid = g.conn.execute("INSERT INTO reviews(rating, review_text,review_likes) VALUES (%s, %s, 0) RETURNING rid",rating,review_text).fetchone()[0]
+  g.conn.execute("INSERT INTO has_reviews(isbn, rid) VALUES (%s,%s)",isbn,rid)
+  g.conn.execute("INSERT INTO posts_reviews(uid, rid) VALUES (%s,%s)",uid,rid)
+
+  return redirect('/home')
+
+@app.route('/ratings', methods=['POST'])
+
+def ratings():
+  isbn = request.form["ISBN"]
+  book_title = g.conn.execute("SELECT title from books WHERE isbn=%s",isbn).fetchone()[0]
+  context = dict(isbn = isbn, title= book_title)
+  return render_template("ratings.html", **context)
 
 @app.route('/searchBooks', methods=['POST'])
 def searchBooks():

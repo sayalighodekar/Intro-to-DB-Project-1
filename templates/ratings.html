@@ -7,10 +7,15 @@
 
 {% block content %}
 
-
-<form method="post">
-    <textarea rows = "5" cols = "60" name = "description"></textarea><br>
-    <input type="submit" value="Submit Review"></p>
+<form method="post", action="/addRating">
+  <p>WRITE A REVIEW FOR</p>
+  <label id="label1">{{title}}</label>
+  <label id="label2">{{isbn}}</label><br>
+  <input type="hidden", id="isbn", name="isbn", value={{isbn}}>
+  <label for="vol">Rating (between 0 and 5):</label>
+  <input type="range" id="rating" name="rating"  min="0" max="5" step="1" value=1>
+  <textarea rows = "5" cols = "60" id = "review" name="review"></textarea><br>
+  <input type="submit" value="Post a Review">
 </form>  
   </p><a href="{{ url_for('home') }}">Back to home</p>
 
