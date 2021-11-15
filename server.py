@@ -194,6 +194,20 @@ def home():
 @app.route('/stores')
 def stores():
 
+  cursor = g.conn.execute("SELECT A.name FROM follows F INNER JOIN authors A ON F.aid = A.aid WHERE uid=(%s)",uid)
+  names = []
+  for result in cursor:
+    names.append(result['name'])  # can also be accessed using result[0]
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT B.title FROM favorites F INNER JOIN books B ON F.isbn = B.isbn WHERE uid=(%s)",uid)
+  books = []
+  for result in cursor:
+    books.append(result['title'])  # can also be accessed using result[0]
+  cursor.close()
+
+  context = dict(authors = names, books= books)
+
   return render_template("stores.html")
 
 @app.route('/ratings')
@@ -255,6 +269,11 @@ def searchBooks():
     title.append(result[10])
     numResults = numResults + 1
   cursor.close()
+  if numResults == 0:
+    flash("Aww snap! no such book")
+    return redirect(url_for('home'))
+    
+
   context = dict(data = title, l = l, input = select_title, numResults = numResults)
   return render_template("searchBooks.html", **context)
 
@@ -300,6 +319,10 @@ def searchAuthor():
   if len(authorInfo) == 0:
       select_name = "No Results"
 
+  if numResults == 0:
+    flash("Aww snap! no such author")
+    return redirect(url_for('home'))
+
   context = dict(data = books, name = select_name, info = authorInfo, l=l, numBooks = numBooks,
                  counter = counter, numResults = numResults)
   return render_template("searchAuthor.html", **context)
@@ -324,6 +347,7 @@ def searchGenre():
     title.append("'" + result[0] + "', by " + result[1] + ", ISBN: " + str(result[2]) +
                                                          ", rating: " + str(result[3]))
   cursor.close()
+
   context = dict(data = title)
   return render_template("searchGenre.html", **context)
 
