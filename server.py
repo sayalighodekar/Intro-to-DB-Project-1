@@ -342,12 +342,16 @@ def searchGenre():
                                 "AND g.gid = w.gid AND g.genre_name = %s ORDER BY b.avg_rating ASC "
                                 "LIMIT %s", select_genre, num_results)
   title = []
-  numResults = []
+  numResults = 0
   for result in cursor:
     title.append("'" + result[0] + "', by " + result[1] + ", ISBN: " + str(result[2]) +
                                                          ", rating: " + str(result[3]))
     numResults = numResults + 1
   cursor.close()
+
+  if numResults == 0:
+    flash("Aww snap! no book in this genre")
+    return redirect(url_for('home'))
 
   context = dict(data = title)
   return render_template("searchGenre.html", **context)
