@@ -1,4 +1,31 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block header %}
+{{ super() }}
+<h1>Books</h1>
+{% endblock %}
+
+{% block content %}
+  
+<form method="POST" action="/searchBooks">
+  <p>Title of book: <input type="text" name="title"> <input type="submit" value="Search"></p>
+  </form>
+  
+  <p><a href="home">back</a></p>
+  
+  
+  <body>
+  <h3>search results for: {{input}}</h3>
+    <div>
+      {% for j in range(numResults)%}
+      {% for i in range(11) %}
+      <div>{{l[i]}} {{data[j*11+i]}}</div>
+      {% endfor %}
+      <div>------------------------------------------------------</div>
+      {% endfor %}
+    </div>
+{% endblock %}
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -38,4 +65,4 @@
 <body>
 
 </body>
-</html>
+</html> -->
