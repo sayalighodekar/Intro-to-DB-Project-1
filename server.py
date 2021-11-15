@@ -17,10 +17,13 @@ from sqlalchemy.exc import IntegrityError
 from flask import session
 from flask import redirect, url_for 
 
+
+
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
 app.config.update(SECRET_KEY=os.urandom(24))
+
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -68,19 +71,19 @@ def before_request():
     import traceback; traceback.print_exc()
     g.conn = None
 
-# @app.before_request
-# def load_logged_in_user():
-#   """If a user id is stored in the session, load the user object from
-#     the database into ``g.user``."""
-#   user_id = session.get("user_id")
-#   if user_id is None:
-#       g.user = None
-#   else:
-#       g.user = g.conn.execute(
-#           "SELECT * FROM users WHERE uid = (%s)", (user_id,)
-#       ).fetchone()
+@app.before_request
+def load_logged_in_user():
+  """If a user id is stored in the session, load the user object from
+    the database into ``g.user``."""
+  user_id = session.get("user_id")
+  if user_id is None:
+      g.user = None
+  else:
+      g.user = g.conn.execute(
+          "SELECT * FROM users WHERE uid = (%s)", (user_id,)
+      ).fetchone()
 
-#   print(g.user)
+  print(g.user)
 
 
 @app.teardown_request
@@ -183,17 +186,13 @@ def index():
 def another():
   return render_template("another.html")
 
-@app.route('/home')
-def home():
-  return render_template("home.html")
-
-<<<<<<< Updated upstream
 
 @app.route('/home')
 def home():
   return render_template("home.html")
 
-=======
+
+
 # @app.route('/stores')
 # def stores():
 
@@ -216,7 +215,6 @@ def home():
 @app.route('/ratings')
 def ratings():
   return render_template("ratings.html")
->>>>>>> Stashed changes
 
 @app.route('/profile')
 def profile():
@@ -243,9 +241,16 @@ def profile():
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
 def add():
-  name = request.form['name']
+  name = request.form['value']
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
+
+@app.route('/addFavorite', methods=['POST'])
+def addFavorite():
+  ISBN = request.form["ISBN"]
+  g.conn.execute('INSERT INTO favorites(uid, ISBN) VALUES (%s, %s)', session["user_id"], ISBN)
+  return redirect('/profile')
+
 
 @app.route('/searchBooks', methods=['POST'])
 def searchBooks():
@@ -272,6 +277,11 @@ def searchBooks():
     title.append(result[10])
     numResults = numResults + 1
   cursor.close()
+  if numResults == 0:
+    flash("Aww snap! no such book")
+    return redirect(url_for('home'))
+    
+
   context = dict(data = title, l = l, input = select_title, numResults = numResults)
   return render_template("searchBooks.html", **context)
 
@@ -313,9 +323,12 @@ def searchAuthor():
   for i in range(1, len(numBooks)):
       counter.append(counter[i-1] + numBooks[i-1][0])
 
-
   if len(authorInfo) == 0:
       select_name = "No Results"
+
+  if numResults == 0:
+    flash("Aww snap! no such author")
+    return redirect(url_for('home'))
 
   context = dict(data = books, name = select_name, info = authorInfo, l=l, numBooks = numBooks,
                  counter = counter, numResults = numResults)
@@ -337,10 +350,17 @@ def searchGenre():
                                 "AND g.gid = w.gid AND g.genre_name = %s ORDER BY b.avg_rating ASC "
                                 "LIMIT %s", select_genre, num_results)
   title = []
+  numResults = 0
   for result in cursor:
     title.append("'" + result[0] + "', by " + result[1] + ", ISBN: " + str(result[2]) +
                                                          ", rating: " + str(result[3]))
+    numResults = numResults + 1
   cursor.close()
+
+  if numResults == 0:
+    flash("Aww snap! no book in this genre")
+    return redirect(url_for('home'))
+
   context = dict(data = title)
   return render_template("searchGenre.html", **context)
 
@@ -367,10 +387,10 @@ def register():
                 )
             except IntegrityError:
                 error = f"User {username} is already registered."
-            # else:
-            #     return redirect(url_for("register"))
+            else:
+                return redirect(url_for("login"))
 
-            print(error)
+            flash(error)
 
     return render_template('register.html')
 
@@ -397,8 +417,9 @@ def login():
             # store the user id in a new session and return to the index
             session.clear()
             session["user_id"] = user["uid"]
-            g.user = user
-            return render_template("home.html")
+            #g.user = user
+            #return render_template("home.html")
+            return redirect(url_for('home'))
 
         flash(error)
 

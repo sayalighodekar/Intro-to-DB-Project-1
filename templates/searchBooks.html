@@ -1,4 +1,34 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block header %}
+{{ super() }}
+<h1>Books</h1>
+{% endblock %}
+
+{% block content %}
+  
+<form method="POST" action="/searchBooks">
+  <p>Title of book: <input type="text" name="title"> <input type="submit" value="Search"></p>
+  </form>
+  
+  <p><a href="home">back</a></p>
+  
+  
+  <body>
+  <h3>search results for: {{input}}</h3>
+    <div>
+      {% for j in range(numResults)%}
+      {% for i in range(11) %}
+      <div>{{l[i]}} {{data[j*11+i]}}</div>
+      {% endfor %}
+      <form method="POST" action="/addFavorite">
+        <p><button type="submit" name="ISBN" value={{data[j*11+2]}}>Add to Favorite</button></p>
+      </form>
+      <div>------------------------------------------------------</div>
+      {% endfor %}
+    </div>
+{% endblock %}
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -26,6 +56,10 @@
     {% for i in range(11) %}
     <div>{{l[i]}} {{data[j*11+i]}}</div>
     {% endfor %}
+    <form method="POST" action="/addFavorite">
+    <button type="sumbit" name="title" value={{input}}>Add to Favorite</button>
+    </form>
+
     <div>------------------------------------------------------</div>
     {% endfor %}
   </div>
@@ -34,4 +68,4 @@
 <body>
 
 </body>
-</html>
+</html> -->
