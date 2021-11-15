@@ -315,7 +315,6 @@ def searchAuthor():
   for i in range(1, len(numBooks)):
       counter.append(counter[i-1] + numBooks[i-1][0])
 
-
   if len(authorInfo) == 0:
       select_name = "No Results"
 
