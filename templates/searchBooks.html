@@ -26,6 +26,10 @@
     {% for i in range(11) %}
     <div>{{l[i]}} {{data[j*11+i]}}</div>
     {% endfor %}
+    <form method="POST" action="/addFavorite">
+    <button type="sumbit" name="title" value={{input}}>Add to Favorite</button>
+    </form>
+
     <div>------------------------------------------------------</div>
     {% endfor %}
   </div>

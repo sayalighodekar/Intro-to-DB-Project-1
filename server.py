@@ -240,9 +240,17 @@ def profile():
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
 def add():
-  name = request.form['name']
+  name = request.form['value']
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
+
+@app.route('/addFavorite', methods=['POST'])
+def addFavorite():
+  name = request.form['title']
+  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
+  print(name)
+  return redirect('/')
+
 
 @app.route('/searchBooks', methods=['POST'])
 def searchBooks():
