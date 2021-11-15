@@ -186,6 +186,25 @@ def index():
 def another():
   return render_template("another.html")
 
+@app.route('/readReviews', methods=['POST'])
+def readReviews():
+  ISBN = request.form['ISBN']
+  cursor = g.conn.execute("SELECT title FROM books WHERE isbn = %s", ISBN)
+  cursor2 = g.conn.execute("SELECT r.review_text, r.rating FROM has_reviews h, reviews r "
+                           "WHERE h.rid = r.rid AND h.isbn = %s", ISBN)
+  title = []
+  reviews = []
+  for result in cursor:
+      title.append(result[0])
+  cursor.close()
+
+  for result in cursor2:
+      reviews.append(result[0])
+      reviews.append(result[1])
+  cursor2.close()
+
+  context = dict(isbn=ISBN, title=title, reviews = reviews)
+  return render_template("readReviews.html", **context)
 
 @app.route('/home')
 def home():

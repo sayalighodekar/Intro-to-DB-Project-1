@@ -11,8 +11,7 @@
   </form>
   
   <p><a href="home">back</a></p>
-  
-  
+
   <body>
   <h3>search results for: {{input}}</h3>
     <div>
@@ -28,6 +27,10 @@
       <div>{{offlineStore[j*2 + 0]}}</div>
       <div>{{offlineStore[j*2 + 1]}}</div>
       <div>{{offlineStore[j*2 + 2]}}</div>
+
+      <form method="POST" action="/readReviews">
+        <p><button type="submit" name="ISBN" value={{data[j*11+2]}}>Read Reviews</button></p>
+      </form>
 
       <form method="POST" action="/addFavorite">
         <p><button type="submit" name="ISBN" value={{data[j*11+2]}}>Add to Favorite</button></p>

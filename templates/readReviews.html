@@ -1,0 +1,6 @@
+</p><a href="{{ url_for('home') }}">Back to home</a></p>
+  <h3>Reviews for '{{title[0]}}'</h3>
+
+      {% for each in reviews%}
+      <div>{{each}}</div>
+      {% endfor %}
