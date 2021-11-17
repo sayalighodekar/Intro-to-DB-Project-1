@@ -502,6 +502,29 @@ def searchGenre():
   context = dict(data = title)
   return render_template("searchGenre.html", **context)
 
+@app.route('/topAuthors', methods=['POST'])
+def topAuthors():
+  num_results = request.form["num"]
+  sort_order = request.form["order"]
+  if sort_order == "DESC":
+    cursor = g.conn.execute("SELECT a.name, a.avg_rating FROM authors a ORDER BY a.avg_rating DESC "
+                          "LIMIT %s", num_results)
+  elif sort_order == "ASC":
+      cursor = g.conn.execute("SELECT a.name, a.avg_rating FROM authors a ORDER BY a.avg_rating ASC "
+                              "LIMIT %s", num_results)
+  authorInfo = []
+  numResults = 0
+  for result in cursor:
+    authorInfo.append(result[0] + ", rating: " + str(result[1]))
+    numResults = numResults + 1
+  cursor.close()
+
+  if numResults == 0:
+    flash("Aww snap! no book in this genre")
+    return redirect(url_for('home'))
+
+  context = dict(data = authorInfo)
+  return render_template("topAuthors.html", **context)
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
