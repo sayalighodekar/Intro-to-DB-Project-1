@@ -371,6 +371,59 @@ def searchBooks():
                  onlineStore = onlineStore, offlineStore = offlineStore)
   return render_template("searchBooks.html", **context)
 
+@app.route('/searchISBN', methods=['POST'])
+def searchISBN():
+  select_isbn = request.form["isbn"]
+  cursor = g.conn.execute("SELECT b.title, a.name, b.isbn, b.avg_rating, b.language, g.genre_name,"
+                          "b.num_pages, b.publication_date, b.rating_count, b.review_count, b.description "
+                          "FROM books b, authors a, written_by w, genre g WHERE b.isbn = w.isbn "
+                          "AND a.aid = w.aid AND g.gid = w.gid AND b.isbn = %s", select_isbn)
+  cursor2 = g.conn.execute("SELECT s.name, s1.shopping_link FROM store s, online_stores s1, sold_by sb, "
+                           "books b WHERE sb.sid = s.sid AND s.sid = s1.sid AND sb.isbn = b.isbn "
+                           "AND b.isbn = %s", select_isbn)
+  cursor3 = g.conn.execute("SELECT s.name, s1.location, s1.store_time FROM store s, offline_stores s1, "
+                           "sold_by sb, books b WHERE sb.sid = s.sid AND s.sid = s1.sid AND "
+                           "sb.isbn = b.isbn AND b.isbn = %s", select_isbn)
+  title = []
+  onlineStore = []
+  offlineStore = []
+  l = ["title: ", "author: ", "ISBN: ", "rating: ", "language: ", "genre: ", "pages: ", "publication date: ",
+       "ratings count: ", "reviews count:", "summary: ", "online store: ", "physical store: "]
+  numResults = 0
+  for result in cursor:
+    title.append(result[0])
+    title.append(result[1])
+    title.append(result[2])
+    title.append(result[3])
+    title.append(result[4])
+    title.append(result[5])
+    title.append(result[6])
+    title.append(result[7])
+    title.append(result[8])
+    title.append(result[9])
+    title.append(result[10])
+    numResults = numResults + 1
+  cursor.close()
+
+  for result in cursor2:
+      onlineStore.append(result[0])
+      onlineStore.append(result[1])
+  cursor2.close()
+
+  for result in cursor3:
+      offlineStore.append(result[0])
+      offlineStore.append(result[1])
+      offlineStore.append(result[2])
+  cursor3.close()
+
+  if numResults == 0:
+    flash("Aww snap! no such book")
+    return redirect(url_for('home'))
+
+  context = dict(data = title, l = l, input = select_isbn, numResults = numResults,
+                 onlineStore = onlineStore, offlineStore = offlineStore)
+  return render_template("searchBooks.html", **context)
+
 @app.route('/searchAuthor', methods=['POST'])
 def searchAuthor():
   select_name = request.form["name"]
